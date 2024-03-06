@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# this is a helper script which for the self-hosted soluton's VM to start up airflow
+# it has to be run manually when the VM is started
+
 export AIRFLOW_HOME=/home/joeshamcz/airflow-alza
 cd /home/joeshamcz/airflow-alza
 
