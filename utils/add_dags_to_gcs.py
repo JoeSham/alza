@@ -19,7 +19,7 @@ def upload_dags_to_gcs(
         bucket_name (str): the GCS bucket to upload DAGs to
         name_replacement (str, optional): the name of the "dags/" subdirectory that will be used when constructing the temporary directory path name Defaults to "dags/".
     """
-    dags = glob.glob(f"{dags_directory}/*")
+    dags = [path for path in glob.glob(f"{dags_directory}/**", recursive=True) if not os.path.isdir(path)]
 
     if len(dags) > 0:
         # Note - the GCS client library does not currently support batch requests on uploads
