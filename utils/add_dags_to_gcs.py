@@ -56,7 +56,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--dags_bucket",
-        help="Name of the DAGs bucket without the gs:// prefix",
+        help="Name of the DAGs bucket of your gcs environment without the gs:// prefix",
     )
 
     args = parser.parse_args()
