@@ -3,26 +3,8 @@ from __future__ import annotations
 import argparse
 import glob
 import os
-from shutil import copytree, ignore_patterns
-import tempfile
 
-# Imports the Google Cloud client library
 from google.cloud import storage
-
-
-def _create_dags_list(dags_directory: str) -> tuple[str, list[str]]:
-    temp_dir = tempfile.mkdtemp()
-
-    # ignore non-DAG Python files
-    files_to_ignore = ignore_patterns("__init__.py", "*_test.py")
-
-    # Copy everything but the ignored files to a temp directory
-    copytree(dags_directory, f"{temp_dir}/", ignore=files_to_ignore, dirs_exist_ok=True)
-
-    # The only Python files left in our temp directory are DAG files
-    # so we can exclude all non Python files
-    dags = glob.glob(f"{temp_dir}/*.py")
-    return (temp_dir, dags)
 
 
 def upload_dags_to_gcs(
@@ -37,7 +19,7 @@ def upload_dags_to_gcs(
         bucket_name (str): the GCS bucket to upload DAGs to
         name_replacement (str, optional): the name of the "dags/" subdirectory that will be used when constructing the temporary directory path name Defaults to "dags/".
     """
-    temp_dir, dags = _create_dags_list(dags_directory)
+    dags = glob.glob(f"{dags_directory}/*")
 
     if len(dags) > 0:
         # Note - the GCS client library does not currently support batch requests on uploads
@@ -48,18 +30,15 @@ def upload_dags_to_gcs(
         bucket = storage_client.bucket(bucket_name)
 
         for dag in dags:
-            # Remove path to temp dir
-            dag = dag.replace(f"{temp_dir}/", name_replacement)
-
             try:
-                # Upload to your bucket
                 blob = bucket.blob(dag)
                 blob.upload_from_filename(dag)
                 print(f"File {dag} uploaded to {bucket_name}/{dag}.")
             except FileNotFoundError:
                 current_directory = os.listdir()
                 print(
-                    f"{name_replacement} directory not found in {current_directory}, you may need to override the default value of name_replacement to point to a relative directory"
+                    f"{name_replacement} directory not found in {current_directory},"
+                    f" you may need to override the default value of name_replacement to point to a relative directory"
                 )
                 raise
 
