@@ -28,8 +28,8 @@ default_args = {
 @dag(
     catchup=False,
     default_args=default_args,
-    schedule=datetime.timedelta(days=1),
-    start_date=datetime.datetime(2024, 3, 1, 2),
+    schedule=datetime.timedelta(hours=1),
+    start_date=datetime.datetime(2024, 3, 5, 2),
 )
 def alza_case_study_1():
     @task
